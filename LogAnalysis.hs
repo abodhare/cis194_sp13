@@ -19,7 +19,7 @@ insert x Leaf = Node Leaf x Leaf
 insert msg@(LogMessage _ ts _) (Node x nodeMsg@(LogMessage _ nodeTs _) y)
     | ts <= nodeTs = Node (insert msg x) nodeMsg y
     | ts > nodeTs = Node x nodeMsg (insert msg y)
-insert (LogMessage _ _ _) x = x
+insert LogMessage {} x = x
 
 build :: [LogMessage] -> MessageTree
 build = foldr insert Leaf
@@ -39,7 +39,7 @@ whatWentWrong = takeImportant . inOrder . build
           severeError (LogMessage Warning _ _) = False
           severeError (Unknown _) = False
           extract [] = []
-          extract ((LogMessage _ _ x):xs) = x : (extract xs)
+          extract ((LogMessage _ _ x):xs) = x : extract xs
           extract ((Unknown _):x) = extract x
 
 firstFewMessages :: TimeStamp -> [LogMessage] -> [String]
@@ -50,5 +50,5 @@ firstFewMessages ts msgs = takeImportant ts (inOrder (build msgs))
               | otherwise = False
           important _ _ = False
           extract [] = []
-          extract ((LogMessage _ _ x):xs) = x : (extract xs)
+          extract ((LogMessage _ _ x):xs) = x : extract xs
           extract ((Unknown _):xs) = extract xs
