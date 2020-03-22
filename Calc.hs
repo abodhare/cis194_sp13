@@ -1,17 +1,22 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Calc where
 
-import ExprT
+-- import ExprT
 import Parser
+import StackVM
 
 class Expr a where
     lit :: Integer -> a
     mul :: a -> a -> a
     add :: a -> a -> a
 
+{-
 instance Expr ExprT where
     lit = Lit
     mul = Mul
     add = Add
+-}
 
 instance Expr Integer where
     lit = id
@@ -39,15 +44,19 @@ instance Expr Mod7 where
     mul (Mod7 x) (Mod7 y) = lit (x * y)
     add (Mod7 x) (Mod7 y) = lit (x + y)
 
+{-
 eval :: ExprT -> Integer
 eval (Lit x) = x
 eval (Add x y) = eval x + eval y
 eval (Mul x y) = eval x * eval y
+-}
 
+{-
 evalStr :: String -> Maybe Integer
 evalStr x = case parseExp Lit Add Mul x of
     (Just y) -> Just (eval y)
     Nothing -> Nothing
+-}
 
 testExp :: Expr a => Maybe a
 testExp = parseExp lit add mul "(3 * -4) + 5"
@@ -56,3 +65,11 @@ testInteger = testExp :: Maybe Integer
 testBool = testExp :: Maybe Bool
 testMM = testExp :: Maybe MinMax
 testSat = testExp :: Maybe Mod7
+
+instance Expr Program where
+    lit x = [PushI x]
+    mul x y = x ++ y ++ [Mul]
+    add x y = x ++ y ++ [Add]
+
+compile :: String -> Maybe Program
+compile = parseExp lit add mul
