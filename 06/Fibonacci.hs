@@ -65,5 +65,5 @@ instance Num Matrix where
 
 fib4 :: Integer -> Integer
 fib4 0 = 0
-fib4 n = case (Matrix 1 1 1 0) ^ n of
+fib4 n = case Matrix 1 1 1 0 ^ n of
     (Matrix _ a _ _) -> a
